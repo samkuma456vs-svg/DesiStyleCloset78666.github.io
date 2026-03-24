@@ -1,0 +1,208 @@
+  index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesiStyleCloset786 - India's No.1 Premium Ethnic Fashion Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome CDN for Professional Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" href="https://via.placeholder.com/32x32/FFD700/000000?text=DS" type="image/x-icon">
+    <!-- Extra Meta for Professional SEO Look -->
+    <meta name="description" content="DesiStyleCloset786 - Luxury Ethnic Wear, Handcrafted Sarees, Lehengas, Kurtas & Sherwani. VIP Shopping Experience with Free Shipping.">
+    <meta name="keywords" content="desi fashion, ethnic wear, saree, lehenga, kurta, sherwani, indian wedding wear, premium desi clothes">
+</head>
+<body>
+    <!-- LOGIN MODAL - Professional Popup -->
+    <div id="login-modal" class="login-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2>Welcome to DesiStyleCloset786</h2>
+            <p class="modal-subtitle">Sign in to unlock VIP offers, save your cart &amp; get personalized recommendations</p>
+            
+            <!-- Social Login Buttons -->
+            <button onclick="simulateLogin('Google')" class="social-btn google-btn">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+            <button onclick="simulateLogin('Facebook')" class="social-btn facebook-btn">
+                <i class="fab fa-facebook-f"></i> Continue with Facebook
+            </button>
+            <button onclick="simulateLogin('Instagram')" class="social-btn instagram-btn">
+                <i class="fab fa-instagram"></i> Continue with Instagram
+            </button>
+            <button onclick="simulateLogin('Twitter')" class="social-btn twitter-btn">
+                <i class="fab fa-x-twitter"></i> Continue with X (Twitter)
+            </button>
+            
+            <div class="or-divider">OR</div>
+            
+            <!-- Skip Option -->
+            <button onclick="skipLogin()" class="skip-btn">
+                Skip for now &amp; Browse as Guest
+            </button>
+            
+            <p class="modal-note">By signing in you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a></p>
+        </div>
+    </div>
+
+    <!-- TOP NAV BAR - Super Professional -->
+    <header class="main-header">
+        <div class="top-bar">
+            <!-- Logo Section -->
+            <div class="logo-container">
+                <img id="site-logo" src="https://via.placeholder.com/300x95/FFD700/000000?text=DesiStyleCloset786" alt="DesiStyleCloset786 Logo">
+                <input type="file" id="logo-upload" accept="image/*">
+                <p class="upload-text">Upload Your Logo (Click Here)</p>
+            </div>
+
+            <!-- Main Navigation -->
+            <nav class="main-nav">
+                <a href="#" onclick="filterByCategory('All')">Home</a>
+                <a href="#" onclick="filterByCategory('Kurtas')">Kurtas</a>
+                <a href="#" onclick="filterByCategory('Sarees')">Sarees</a>
+                <a href="#" onclick="filterByCategory('Lehengas')">Lehengas</a>
+                <a href="#" onclick="filterByCategory('Sherwani')">Sherwani</a>
+                <a href="#" onclick="filterByCategory('Anarkali')">Anarkali</a>
+                <a href="#" onclick="filterByCategory('Offers')">Offers</a>
+                <a href="#" class="vip-btn" onclick="showVIPModal()">VIP Membership</a>
+            </nav>
+
+            <!-- Header Right -->
+            <div class="header-right">
+                <!-- Background Upload -->
+                <div class="bg-upload-container">
+                    <label for="bg-upload" class="bg-upload-label">Change Hero Background</label>
+                    <input type="file" id="bg-upload" accept="image/*">
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search premium ethnic wear...">
+                    <button id="search-btn">🔍</button>
+                </div>
+                
+                <div class="cart-icon" id="cart-icon">
+                    🛒 <span id="cart-count">0</span>
+                </div>
+                
+                <div class="user-profile" id="user-profile" onclick="showLoginModal()">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER - Dynamic Background -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <h1>DesiStyleCloset786</h1>
+            <p>India's Most Premium &amp; Exclusive Ethnic Fashion Destination</p>
+            <p class="tagline">100% Handcrafted • Luxury Fabrics • VIP Experience Since 2026</p>
+            <button class="shop-now-btn" onclick="document.getElementById('products-section').scrollIntoView({behavior: 'smooth'})">Shop Exclusive Collection</button>
+        </div>
+    </section>
+
+    <!-- CATEGORY / FOLDER MANAGEMENT SECTION - Dynamic Loop -->
+    <section class="category-management">
+        <h2>Create Your Own Categories (Folders)</h2>
+        <p>You can create unlimited folders/categories. All products will be organized automatically.</p>
+        <form id="create-category-form">
+            <input type="text" id="new-category-name" placeholder="New Category Name (e.g. Bridal Collection)" required>
+            <button type="submit" class="create-category-btn">Create New Folder/Category</button>
+        </form>
+        
+        <div class="existing-categories" id="existing-categories">
+            <!-- Dynamic categories loaded by JS loop -->
+        </div>
+    </section>
+
+    <!-- ADD NEW PRODUCT FORM - Professional &amp; Expanded -->
+    <section class="add-product-section">
+        <h2>Add New Product Instantly (Fill All Fields)</h2>
+        <form id="add-product-form">
+            <div class="form-grid">
+                <input type="text" id="new-name" placeholder="Product Name" required>
+                <input type="number" id="new-price" placeholder="Price in ₹" required>
+                <input type="url" id="new-img" placeholder="Image URL or Paste Link" required>
+                <input type="url" id="new-visit-link" placeholder="Visit / Product Link" required>
+                <select id="new-category" required>
+                    <!-- Dynamic options from categories loop -->
+                </select>
+            </div>
+            <button type="submit" class="publish-btn">Publish Product to Selected Folder</button>
+        </form>
+    </section>
+
+    <!-- PRODUCTS SECTION -->
+    <section id="products-section" class="products-section">
+        <h2 class="section-title">Our Exclusive VIP Collection</h2>
+        <div class="products-grid" id="products-grid">
+            <!-- All products rendered by JS -->
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION - Extra Content for Bigger Code -->
+    <section class="testimonials-section">
+        <h2>What Our VIP Customers Say</h2>
+        <div class="testimonials-grid" id="testimonials-grid">
+            <!-- Dynamic testimonials loaded by JS -->
+        </div>
+    </section>
+
+    <!-- ABOUT US SECTION - Long Professional Text -->
+    <section class="about-section">
+        <h2>About DesiStyleCloset786</h2>
+        <p>Established in 2026, DesiStyleCloset786 is India's most luxurious ethnic fashion platform. We bring together master artisans from Banaras, Kutch, Rajasthan and Bengal to create handcrafted masterpieces that define modern Indian elegance.</p>
+        <p>Every saree, lehenga and sherwani is made with love using pure silk, velvet, georgette and zari work. Our VIP members enjoy early access, custom stitching and free worldwide shipping.</p>
+        <p>We believe fashion is not just clothing — it is culture, heritage and emotion. That is why every piece at DesiStyleCloset786 tells a story.</p>
+        <p>Our vision is to make premium desi wear accessible yet exclusive. Join our growing family of 50,000+ satisfied VIP customers who trust us for their weddings, festivals and special occasions.</p>
+    </section>
+
+    <!-- FAQ SECTION - Extra Padding -->
+    <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        **Summary:**
+How do I change the website background?
+            <p>Use the "Change Hero Background" button in the header. Upload any photo and it will update instantly.</p>
+        **Summary:**
+Can I create my own product folders?
+            <p>Yes! Use the "Create New Folder/Category" form above. Unlimited folders supported.</p>
+        **Summary:**
+Is login mandatory?
+            <p>No. You can always click "Skip" and browse as a guest.</p>
+    </section>
+
+    <!-- FOOTER - Expanded Professional -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>DesiStyleCloset786</h3>
+                <p>Premium Ethnic Fashion</p>
+            </div>
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <a href="#">Home</a>
+                <a href="#">Track Order</a>
+                <a href="#">VIP Membership</a>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <a href="#">Contact Us</a>
+                <a href="#">Returns</a>
+                <a href="#">Size Guide</a>
+            </div>
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-footer">
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-x-twitter"></i>
+                </div>
+            </div>
+        </div>
+        <p class="copyright">© 2026 DesiStyleCloset786 • All Rights Reserved • Made with ❤️ for Indian Fashion</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
