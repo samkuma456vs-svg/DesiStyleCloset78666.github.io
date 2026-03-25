@@ -1,300 +1,201 @@
-styles.css
-/* styles.css - SUPER EXPANDED PROFESSIONAL CSS (550+ lines with animations, media queries, etc.) */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+// script.js - FULL WORKING CODE
+
+let products = [
+    { id: 1, name: "Royal Silk Saree", price: 4999, img: "https://picsum.photos/id/1015/600/600", visitLink: "https://desistylecloset786.com/royal-silk", category: "Sarees" },
+    { id: 2, name: "Embroidered Kurta Pajama", price: 2999, img: "https://picsum.photos/id/201/600/600", visitLink: "https://desistylecloset786.com/kurta", category: "Kurtas" },
+    { id: 3, name: "Designer Lehenga Choli", price: 8999, img: "https://picsum.photos/id/29/600/600", visitLink: "https://desistylecloset786.com/lehenga", category: "Lehengas" },
+    { id: 4, name: "Banarasi Sherwani", price: 6499, img: "https://picsum.photos/id/160/600/600", visitLink: "https://desistylecloset786.com/sherwani", category: "Sherwani" }
+];
+
+let categories = ["All", "Kurtas", "Sarees", "Lehengas", "Sherwani", "Anarkali"];
+let cart = [];
+let currentUser = null;
+
+// Load from localStorage
+function loadFromStorage() {
+    const savedProducts = localStorage.getItem('desiProducts');
+    if (savedProducts) products = JSON.parse(savedProducts);
+    
+    const savedCategories = localStorage.getItem('desiCategories');
+    if (savedCategories) categories = JSON.parse(savedCategories);
+    
+    const savedBG = localStorage.getItem('heroBackground');
+    if (savedBG) document.getElementById('hero').style.backgroundImage = `url(${savedBG})`;
 }
 
-:root {
-    --gold: #ffd700;
-    --dark: #0a0a0a;
-    --accent: #3d0000;
+function saveToStorage() {
+    localStorage.setItem('desiProducts', JSON.stringify(products));
+    localStorage.setItem('desiCategories', JSON.stringify(categories));
 }
 
-body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--dark);
-    color: var(--gold);
-    line-height: 1.7;
-    overflow-x: hidden;
+// Render Categories
+function renderCategories() {
+    const container = document.getElementById('existing-categories');
+    container.innerHTML = '';
+    categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `category-tab ${cat === 'All' ? 'active' : ''}`;
+        btn.textContent = cat;
+        btn.onclick = () => filterByCategory(cat);
+        container.appendChild(btn);
+    });
 }
 
-/* LOGIN MODAL STYLES */
-.login-modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.92);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    opacity: 1;
-    transition: opacity 0.4s;
+// Filter Products
+function filterByCategory(cat) {
+    const filtered = cat === 'All' ? products : products.filter(p => p.category === cat);
+    renderProducts(filtered);
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent === cat);
+    });
 }
 
-.modal-content {
-    background: #1f1f1f;
-    padding: 50px 40px;
-    border-radius: 25px;
-    border: 5px solid var(--gold);
-    max-width: 480px;
-    text-align: center;
-    box-shadow: 0 0 60px var(--gold);
-    animation: modalPop 0.6s ease;
+// Render Products
+function renderProducts(filteredProducts) {
+    const grid = document.getElementById('products-grid');
+    grid.innerHTML = '';
+    filteredProducts.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <img src="\( {product.img}" alt=" \){product.name}">
+            <div class="product-info">
+                <h3>${product.name}</h3>
+                <a href="${product.visitLink}" target="_blank" class="visit-button">Visit Product Link</a>
+                <p class="price">₹${product.price}</p>
+                <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    attachCartListeners();
 }
 
-@keyframes modalPop {
-    from { transform: scale(0.7); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+function attachCartListeners() {
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            const prod = products.find(p => p.id === id);
+            cart.push(prod);
+            document.getElementById('cart-count').textContent = cart.length;
+            alert(`${prod.name} added to cart!`);
+        });
+    });
 }
 
-.close-modal {
-    position: absolute;
-    top: 15px;
-    right: 25px;
-    font-size: 38px;
-    cursor: pointer;
-    color: var(--gold);
+// Create New Category
+document.getElementById('create-category-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newCat = document.getElementById('new-category-name').value.trim();
+    if (newCat && !categories.includes(newCat)) {
+        categories.push(newCat);
+        saveToStorage();
+        renderCategories();
+        populateCategorySelect();
+        alert(`New Folder "${newCat}" created!`);
+        this.reset();
+    }
+});
+
+function populateCategorySelect() {
+    const select = document.getElementById('new-category');
+    select.innerHTML = '<option value="">Select Folder</option>';
+    categories.forEach(cat => {
+        if (cat !== 'All') {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            select.appendChild(option);
+        }
+    });
 }
 
-.social-btn {
-    width: 100%;
-    padding: 16px;
-    margin: 12px 0;
-    font-size: 18px;
-    font-weight: 900;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    transition: all 0.3s;
+// Add New Product
+document.getElementById('add-product-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newProd = {
+        id: Date.now(),
+        name: document.getElementById('new-name').value,
+        price: parseInt(document.getElementById('new-price').value),
+        img: document.getElementById('new-img').value,
+        visitLink: document.getElementById('new-visit-link').value,
+        category: document.getElementById('new-category').value
+    };
+    products.unshift(newProd);
+    saveToStorage();
+    renderProducts(products);
+    alert('Product published successfully!');
+    this.reset();
+});
+
+// Background Upload
+document.getElementById('bg-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            document.getElementById('hero').style.backgroundImage = `url(${ev.target.result})`;
+            localStorage.setItem('heroBackground', ev.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Logo Upload
+document.getElementById('logo-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = ev => document.getElementById('site-logo').src = ev.target.result;
+        reader.readAsDataURL(file);
+    }
+});
+
+// Search
+document.getElementById('search-btn').addEventListener('click', () => {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+    renderProducts(filtered.length ? filtered : products);
+});
+
+// ================== SOCIAL LOGIN ==================
+function showLoginModal() {
+    document.getElementById('login-modal').style.display = 'flex';
 }
 
-.google-btn { background: #4285f4; color: white; }
-.facebook-btn { background: #1877f2; color: white; }
-.instagram-btn { background: linear-gradient(45deg, #f56040, #c13584); color: white; }
-.twitter-btn { background: #000; color: white; }
-
-.social-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+function closeLoginModal() {
+    document.getElementById('login-modal').style.display = 'none';
 }
 
-.skip-btn {
-    width: 100%;
-    padding: 16px;
-    background: transparent;
-    border: 3px solid var(--gold);
-    color: var(--gold);
-    font-size: 18px;
-    font-weight: 900;
-    border-radius: 50px;
-    margin-top: 20px;
+document.getElementById('close-modal').addEventListener('click', closeLoginModal);
+
+window.simulateLogin = function(provider) {
+    currentUser = provider;
+    document.getElementById('user-profile').innerHTML = `<i class="fas fa-check-circle"></i> ${provider}`;
+    alert(`✅ Logged in with ${provider}! Welcome to VIP experience.`);
+    closeLoginModal();
+};
+
+window.skipLogin = function() {
+    alert('You are browsing as Guest. Full shopping is still available!');
+    closeLoginModal();
+};
+
+function showVIPModal() {
+    alert('🎉 VIP Membership coming soon!\nEnjoy 20% off + early access.');
 }
 
-.or-divider {
-    margin: 25px 0;
-    color: #888;
-    position: relative;
-}
-
-.or-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 45%;
-    height: 1px;
-    background: #444;
-}
-
-/* HEADER STYLES */
-.main-header {
-    background: rgba(10, 10, 10, 0.98);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
-}
-
-.top-bar {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 20px 6%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo-container {
-    position: relative;
-}
-
-#site-logo {
-    width: 320px;
-    height: 100px;
-    border: 6px solid var(--gold);
-    border-radius: 18px;
-    box-shadow: 0 0 45px var(--gold);
-}
-
-.bg-upload-label {
-    font-size: 13px;
-    padding: 8px 16px;
-    background: var(--gold);
-    color: #000;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 900;
-}
-
-/* SEARCH & CART */
-.search-bar {
-    display: flex;
-    background: #1f1f1f;
-    border-radius: 50px;
-    overflow: hidden;
-}
-
-#search-input {
-    padding: 18px 28px;
-    width: 420px;
-    font-size: 19px;
-    border: none;
-    background: transparent;
-    color: var(--gold);
-}
-
-#search-btn {
-    background: var(--gold);
-    color: #000;
-    padding: 0 35px;
-    font-size: 22px;
-}
-
-/* HERO */
-#hero {
-    height: 680px;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-}
-
-.hero-content h1 {
-    font-size: 92px;
-    font-weight: 900;
-    text-shadow: 0 0 50px var(--gold);
-}
-
-.hero-content p {
-    font-size: 32px;
-    margin: 20px 0;
-}
-
-/* CATEGORY MANAGEMENT */
-.category-management {
-    max-width: 1400px;
-    margin: 80px auto;
-    padding: 50px;
-    background: rgba(255,255,255,0.03);
-    border: 4px solid var(--gold);
-    border-radius: 25px;
-}
-
-.existing-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 25px;
-}
-
-.category-tab {
-    padding: 14px 28px;
-    background: #1f1f1f;
-    border: 2px solid var(--gold);
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 900;
-    transition: all 0.3s;
-}
-
-.category-tab.active {
-    background: var(--gold);
-    color: #000;
-}
-
-/* PRODUCTS GRID */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 40px;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 0 5%;
-}
-
-.product-card {
-    background: rgba(31,31,31,0.95);
-    border-radius: 25px;
-    overflow: hidden;
-    border: 4px solid var(--gold);
-    transition: transform 0.5s, box-shadow 0.5s;
-}
-
-.product-card:hover {
-    transform: translateY(-25px) scale(1.05);
-    box-shadow: 0 30px 70px rgba(255, 215, 0, 0.5);
-}
-
-/* TESTIMONIALS */
-.testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
-}
-
-/* FOOTER */
-footer {
-    background: #000;
-    padding: 80px 6%;
-    text-align: center;
-}
-
-/* ANIMATIONS */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(50px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* RESPONSIVE - Multiple Media Queries for Professional Look */
-@media (max-width: 1200px) {
-    .hero-content h1 { font-size: 68px; }
-    .main-nav { gap: 15px; font-size: 16px; }
-}
-
-@media (max-width: 768px) {
-    .top-bar { flex-direction: column; gap: 20px; }
-    #search-input { width: 280px; }
-}
-
-/* Extra CSS Rules for Bigger File (many hover, focus, etc.) */
-input:focus, select:focus {
-    outline: 3px solid var(--gold);
-    box-shadow: 0 0 20px var(--gold);
-}
-
-.publish-btn:hover {
-    background: #fff;
-    color: #000;
-    transform: scale(1.05);
-}
-
-/* You can keep adding more rules - this CSS is already 500+ lines in real file */
+// Initial Load
+window.onload = function() {
+    loadFromStorage();
+    renderCategories();
+    populateCategorySelect();
+    renderProducts(products);
+    
+    // Auto show login modal after 1 second
+    setTimeout(() => {
+        document.getElementById('login-modal').style.display = 'flex';
+    }, 1000);
+    
+    console.log('✅ DesiStyleCloset786 Loaded Successfully on Mobile!');
+};
