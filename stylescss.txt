@@ -1,13 +1,22 @@
+// script.js - PROFESSIONAL JS FOR DesiStyleCloset786
+
+// ===== INITIAL DATA =====
 let products = [
-    { id: 1, name: "Royal Silk Saree", price: 4999, img: "https://picsum.photos/id/1015/600/600", visitLink: "https://desistylecloset786.com/royal-silk", category: "Sarees" },
-    { id: 2, name: "Embroidered Kurta Pajama", price: 2999, img: "https://picsum.photos/id/201/600/600", visitLink: "https://desistylecloset786.com/kurta", category: "Kurtas" },
-    { id: 3, name: "Designer Lehenga Choli", price: 8999, img: "https://picsum.photos/id/29/600/600", visitLink: "https://desistylecloset786.com/lehenga", category: "Lehengas" },
-    { id: 4, name: "Banarasi Sherwani", price: 6499, img: "https://picsum.photos/id/160/600/600", visitLink: "https://desistylecloset786.com/sherwani", category: "Sherwani" }
+    { id: 1, name: "Royal Silk Saree", price: 4999, img: "https://picsum.photos/id/1015/600/600", visitLink: "#", category: "Sarees" },
+    { id: 2, name: "Embroidered Kurta Pajama", price: 2999, img: "https://picsum.photos/id/201/600/600", visitLink: "#", category: "Kurtas" },
+    { id: 3, name: "Designer Lehenga Choli", price: 8999, img: "https://picsum.photos/id/29/600/600", visitLink: "#", category: "Lehengas" },
+    { id: 4, name: "Velvet Sherwani Gold", price: 12999, img: "https://picsum.photos/id/102/600/600", visitLink: "#", category: "Sherwani" },
+    { id: 5, name: "Anarkali Suit Red", price: 5499, img: "https://picsum.photos/id/106/600/600", visitLink: "#", category: "Anarkali" },
+    { id: 6, name: "Banarasi Silk Saree", price: 7999, img: "https://picsum.photos/id/1019/600/600", visitLink: "#", category: "Sarees" },
+    { id: 7, name: "Cotton Kurta Set", price: 1999, img: "https://picsum.photos/id/237/600/600", visitLink: "#", category: "Kurtas" },
+    { id: 8, name: "Bridal Lehenga Pink", price: 15999, img: "https://picsum.photos/id/1025/600/600", visitLink: "#", category: "Lehengas" }
 ];
 
 let categories = ["All", "Kurtas", "Sarees", "Lehengas", "Sherwani", "Anarkali"];
 let cart = [];
+let currentUser = null;
 
+// ===== LOCAL STORAGE FUNCTIONS =====
 function loadFromStorage() {
     const savedProducts = localStorage.getItem('desiProducts');
     if (savedProducts) products = JSON.parse(savedProducts);
@@ -17,6 +26,12 @@ function loadFromStorage() {
     
     const savedBG = localStorage.getItem('heroBackground');
     if (savedBG) document.getElementById('hero').style.backgroundImage = `url(${savedBG})`;
+    
+    const savedUser = localStorage.getItem('desiUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        updateUserProfile();
+    }
 }
 
 function saveToStorage() {
@@ -24,67 +39,23 @@ function saveToStorage() {
     localStorage.setItem('desiCategories', JSON.stringify(categories));
 }
 
+// ===== RENDER FUNCTIONS =====
 function renderCategories() {
     const container = document.getElementById('existing-categories');
+    if (!container) return;
     container.innerHTML = '';
+    
     categories.forEach(cat => {
         const btn = document.createElement('button');
-        btn.className = `category-tab ${cat === 'All' ? 'active' : ''}`;
-        btn.textContent = cat;
+        btn.className = `category-tab ${cat === 'All' ? 'active' : ''}`;        btn.textContent = cat;
         btn.onclick = () => filterByCategory(cat);
         container.appendChild(btn);
     });
 }
 
-function filterByCategory(cat) {
-    const filtered = cat === 'All' ? products : products.filter(p => p.category === cat);
-    renderProducts(filtered);
-    document.querySelectorAll('.category-tab').forEach(tab => tab.classList.toggle('active', tab.textContent === cat));
-}
-
-function renderProducts(filteredProducts) {
-    const grid = document.getElementById('products-grid');
-    grid.innerHTML = '';
-    filteredProducts.forEach(product => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-            <img src="\( {product.img}" alt=" \){product.name}">
-            <div class="product-info">
-                <h3>${product.name}</h3>
-                <a href="${product.visitLink}" target="_blank" class="visit-button">Visit Product Link</a>
-                <p class="price">₹${product.price}</p>
-                <button class="add-to-cart" onclick="addToCart(${product.id})">Add to Cart</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-function addToCart(id) {
-    const prod = products.find(p => p.id === id);
-    if (prod) {
-        cart.push(prod);
-        document.getElementById('cart-count').textContent = cart.length;
-        alert(prod.name + " added to cart! 🛒");
-    }
-}
-
-document.getElementById('create-category-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const newCat = document.getElementById('new-category-name').value.trim();
-    if (newCat && !categories.includes(newCat)) {
-        categories.push(newCat);
-        saveToStorage();
-        renderCategories();
-        populateCategorySelect();
-        alert(`New Folder "${newCat}" created successfully!`);
-        this.reset();
-    }
-});
-
 function populateCategorySelect() {
     const select = document.getElementById('new-category');
+    if (!select) return;
     select.innerHTML = '<option value="">Select Folder/Category</option>';
     categories.forEach(cat => {
         if (cat !== 'All') {
@@ -96,58 +67,267 @@ function populateCategorySelect() {
     });
 }
 
-document.getElementById('add-product-form').addEventListener('submit', function(e) {
+function renderProducts(filteredProducts) {
+    const grid = document.getElementById('products-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    if (filteredProducts.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:#888;">No products found in this category.</p>';
+        return;
+    }
+    
+    filteredProducts.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <img src="${product.img}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/600x600/1f1f1f/ffd700?text=No+Image'">
+            <div class="product-info">
+                <h3>${product.name}</h3>
+                <a href="${product.visitLink}" target="_blank" class="visit-button">View Details</a>
+                <p class="price">₹${product.price.toLocaleString('en-IN')}</p>
+                <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    
+    attachCartListeners();
+}
+
+function filterByCategory(cat) {
+    const filtered = cat === 'All' ? products : products.filter(p => p.category === cat);    renderProducts(filtered);
+    
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent === cat);
+    });
+}
+
+function attachCartListeners() {
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            const prod = products.find(p => p.id === id);
+            if (prod) {
+                cart.push(prod);
+                document.getElementById('cart-count').textContent = cart.length;
+                showToast(`${prod.name} added to cart! 🛒`);
+            }
+        });
+    });
+}
+
+// ===== CATEGORY MANAGEMENT =====
+document.getElementById('create-category-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newCat = document.getElementById('new-category-name').value.trim();
+    if (newCat && !categories.includes(newCat)) {
+        categories.push(newCat);
+        saveToStorage();
+        renderCategories();
+        populateCategorySelect();
+        showToast(`✅ Folder "${newCat}" created!`);
+        this.reset();
+    } else if (categories.includes(newCat)) {
+        showToast('⚠️ This category already exists!');
+    }
+});
+
+// ===== ADD PRODUCT =====
+document.getElementById('add-product-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const newProd = {
         id: Date.now(),
         name: document.getElementById('new-name').value,
         price: parseInt(document.getElementById('new-price').value),
-        img: document.getElementById('new-img').value || 'https://picsum.photos/id/999/600/600',
+        img: document.getElementById('new-img').value || 'https://via.placeholder.com/600x600/1f1f1f/ffd700?text=No+Image',
         visitLink: document.getElementById('new-visit-link').value,
         category: document.getElementById('new-category').value
     };
-    products.unshift(newProd);
-    saveToStorage();
+    
+    products.unshift(newProd);    saveToStorage();
     renderProducts(products);
-    alert('✅ Product published successfully!');
+    showToast('✅ Product published successfully!');
     this.reset();
 });
 
-document.getElementById('bg-upload').addEventListener('change', function(e) {
+// ===== IMAGE UPLOADS =====
+document.getElementById('bg-upload')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (file) {
+    if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => {
-            document.getElementById('hero').style.backgroundImage = `url(${ev.target.result})`;
+        reader.onload = function(ev) {
+            const hero = document.getElementById('hero');
+            hero.style.backgroundImage = `url(${ev.target.result})`;
             localStorage.setItem('heroBackground', ev.target.result);
+            showToast('🎨 Background updated!');
         };
         reader.readAsDataURL(file);
     }
 });
 
-document.getElementById('logo-upload').addEventListener('change', function(e) {
+document.getElementById('logo-upload')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (file) {
+    if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => document.getElementById('site-logo').src = ev.target.result;
+        reader.onload = ev => {
+            document.getElementById('site-logo').src = ev.target.result;
+            showToast('🖼️ Logo updated!');
+        };
         reader.readAsDataURL(file);
     }
 });
 
-document.getElementById('search-btn').addEventListener('click', () => {
-    const query = document.getElementById('search-input').value.toLowerCase().trim();
-    const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-    renderProducts(filtered.length ? filtered : products);
+// ===== SEARCH =====
+document.getElementById('search-btn')?.addEventListener('click', performSearch);
+document.getElementById('search-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
 });
 
-function showVIPModal() {
-    alert('🎉 VIP Membership coming soon!');
+function performSearch() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    if (!query) {
+        renderProducts(products);
+        return;
+    }
+    const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.category.toLowerCase().includes(query)
+    );
+    renderProducts(filtered);    showToast(`🔍 Found ${filtered.length} result(s)`);
 }
 
+// ===== LOGIN SYSTEM (Email Only - Social Login Removed) =====
+function showLoginModal() {
+    document.getElementById('login-modal').style.display = 'flex';
+}
+
+function closeLoginModal() {
+    document.getElementById('login-modal').style.display = 'none';
+}
+
+document.getElementById('close-modal')?.addEventListener('click', closeLoginModal);
+
+// Close modal when clicking outside
+document.getElementById('login-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'login-modal') closeLoginModal();
+});
+
+// Email Login Form Handler
+document.getElementById('email-login-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    
+    // Simple validation (in real app, connect to backend)
+    if (email && password.length >= 6) {
+        currentUser = { email: email, name: email.split('@')[0] };
+        localStorage.setItem('desiUser', JSON.stringify(currentUser));
+        updateUserProfile();
+        showToast(`✅ Welcome, ${currentUser.name}!`);
+        closeLoginModal();
+        this.reset();
+    } else {
+        showToast('⚠️ Please enter valid credentials (password min 6 chars)');
+    }
+});
+
+function updateUserProfile() {
+    const profile = document.getElementById('user-profile');
+    if (currentUser) {
+        profile.innerHTML = `<i class="fas fa-user-check"></i> ${currentUser.name}`;
+        profile.onclick = null; // Disable login modal click
+    } else {
+        profile.innerHTML = `<i class="fas fa-user-circle"></i>`;
+        profile.onclick = showLoginModal;
+    }
+}
+
+window.skipLogin = function() {    showToast('👋 Browsing as Guest');
+    closeLoginModal();
+};
+
+// ===== TESTIMONIALS =====
+function renderTestimonials() {
+    const container = document.getElementById('testimonials-grid');
+    if (!container) return;
+    
+    const testimonials = [
+        { name: "Priya Sharma", text: "Best ethnic wear! My wedding lehenga was absolutely perfect. 💕", img: "https://picsum.photos/id/64/100/100" },
+        { name: "Rahul Verma", text: "Premium quality sherwani. Guests kept asking where I got it!", img: "https://picsum.photos/id/91/100/100" },
+        { name: "Anjali Patel", text: "Fast delivery & beautiful packaging. Will order again! ✨", img: "https://picsum.photos/id/1027/100/100" }
+    ];
+    
+    testimonials.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'testimonial-card';
+        card.innerHTML = `
+            <img src="${t.img}" alt="${t.name}" onerror="this.src='https://via.placeholder.com/100/ffd700/000?text=${t.name[0]}'">
+            <p>"${t.text}"</p>
+            <h4>- ${t.name}</h4>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed; bottom: 30px; right: 30px;
+        background: #1f1f1f; border: 3px solid var(--gold);
+        color: var(--gold); padding: 15px 25px;
+        border-radius: 12px; font-weight: 600;
+        z-index: 10000; animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add toast animations to document
+if (!document.getElementById('toast-styles')) {
+    const style = document.createElement('style');    style.id = 'toast-styles';
+    style.textContent = `
+        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+}
+
+// ===== VIP MODAL =====
+window.showVIPModal = function() {
+    showToast('👑 VIP Membership: Early access + 20% OFF + Free Shipping! (Coming Soon)');
+};
+
+// ===== INITIALIZE =====
 window.onload = function() {
     loadFromStorage();
     renderCategories();
     populateCategorySelect();
     renderProducts(products);
-    console.log("✅ DesiStyleCloset786 Loaded Successfully (No Login System)");
+    renderTestimonials();
+    updateUserProfile();
+    
+    // Show login modal after delay for first-time visitors
+    if (!currentUser && !sessionStorage.getItem('modalShown')) {
+        setTimeout(() => {
+            document.getElementById('login-modal').style.display = 'flex';
+            sessionStorage.setItem('modalShown', 'true');
+        }, 1500);
+    }
 };
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLoginModal();
+    if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input')?.focus();
+    }
+});
