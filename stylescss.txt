@@ -1,6 +1,3 @@
-// script.js - PROFESSIONAL JS FOR DesiStyleCloset786
-
-// ===== INITIAL DATA =====
 let products = [
     { id: 1, name: "Royal Silk Saree", price: 4999, img: "https://picsum.photos/id/1015/600/600", visitLink: "#", category: "Sarees" },
     { id: 2, name: "Embroidered Kurta Pajama", price: 2999, img: "https://picsum.photos/id/201/600/600", visitLink: "#", category: "Kurtas" },
@@ -14,9 +11,7 @@ let products = [
 
 let categories = ["All", "Kurtas", "Sarees", "Lehengas", "Sherwani", "Anarkali"];
 let cart = [];
-let currentUser = null;
 
-// ===== LOCAL STORAGE FUNCTIONS =====
 function loadFromStorage() {
     const savedProducts = localStorage.getItem('desiProducts');
     if (savedProducts) products = JSON.parse(savedProducts);
@@ -26,12 +21,6 @@ function loadFromStorage() {
     
     const savedBG = localStorage.getItem('heroBackground');
     if (savedBG) document.getElementById('hero').style.backgroundImage = `url(${savedBG})`;
-    
-    const savedUser = localStorage.getItem('desiUser');
-    if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        updateUserProfile();
-    }
 }
 
 function saveToStorage() {
@@ -39,7 +28,6 @@ function saveToStorage() {
     localStorage.setItem('desiCategories', JSON.stringify(categories));
 }
 
-// ===== RENDER FUNCTIONS =====
 function renderCategories() {
     const container = document.getElementById('existing-categories');
     if (!container) return;
@@ -47,7 +35,8 @@ function renderCategories() {
     
     categories.forEach(cat => {
         const btn = document.createElement('button');
-        btn.className = `category-tab ${cat === 'All' ? 'active' : ''}`;        btn.textContent = cat;
+        btn.className = `category-tab ${cat === 'All' ? 'active' : ''}`;
+        btn.textContent = cat;
         btn.onclick = () => filterByCategory(cat);
         container.appendChild(btn);
     });
@@ -58,8 +47,7 @@ function populateCategorySelect() {
     if (!select) return;
     select.innerHTML = '<option value="">Select Folder/Category</option>';
     categories.forEach(cat => {
-        if (cat !== 'All') {
-            const option = document.createElement('option');
+        if (cat !== 'All') {            const option = document.createElement('option');
             option.value = cat;
             option.textContent = cat;
             select.appendChild(option);
@@ -85,7 +73,7 @@ function renderProducts(filteredProducts) {
             <div class="product-info">
                 <h3>${product.name}</h3>
                 <a href="${product.visitLink}" target="_blank" class="visit-button">View Details</a>
-                <p class="price">₹${product.price.toLocaleString('en-IN')}</p>
+                <p class="price">INR ${product.price.toLocaleString('en-IN')}</p>
                 <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
             </div>
         `;
@@ -96,7 +84,8 @@ function renderProducts(filteredProducts) {
 }
 
 function filterByCategory(cat) {
-    const filtered = cat === 'All' ? products : products.filter(p => p.category === cat);    renderProducts(filtered);
+    const filtered = cat === 'All' ? products : products.filter(p => p.category === cat);
+    renderProducts(filtered);
     
     document.querySelectorAll('.category-tab').forEach(tab => {
         tab.classList.toggle('active', tab.textContent === cat);
@@ -107,17 +96,15 @@ function attachCartListeners() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = parseInt(btn.getAttribute('data-id'));
-            const prod = products.find(p => p.id === id);
-            if (prod) {
+            const prod = products.find(p => p.id === id);            if (prod) {
                 cart.push(prod);
                 document.getElementById('cart-count').textContent = cart.length;
-                showToast(`${prod.name} added to cart! 🛒`);
+                showToast(`${prod.name} added to cart`);
             }
         });
     });
 }
 
-// ===== CATEGORY MANAGEMENT =====
 document.getElementById('create-category-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const newCat = document.getElementById('new-category-name').value.trim();
@@ -126,14 +113,13 @@ document.getElementById('create-category-form')?.addEventListener('submit', func
         saveToStorage();
         renderCategories();
         populateCategorySelect();
-        showToast(`✅ Folder "${newCat}" created!`);
+        showToast(`Folder "${newCat}" created`);
         this.reset();
     } else if (categories.includes(newCat)) {
-        showToast('⚠️ This category already exists!');
+        showToast('This category already exists');
     }
 });
 
-// ===== ADD PRODUCT =====
 document.getElementById('add-product-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const newProd = {
@@ -145,13 +131,13 @@ document.getElementById('add-product-form')?.addEventListener('submit', function
         category: document.getElementById('new-category').value
     };
     
-    products.unshift(newProd);    saveToStorage();
+    products.unshift(newProd);
+    saveToStorage();
     renderProducts(products);
-    showToast('✅ Product published successfully!');
+    showToast('Product published successfully');
     this.reset();
 });
 
-// ===== IMAGE UPLOADS =====
 document.getElementById('bg-upload')?.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -159,8 +145,7 @@ document.getElementById('bg-upload')?.addEventListener('change', function(e) {
         reader.onload = function(ev) {
             const hero = document.getElementById('hero');
             hero.style.backgroundImage = `url(${ev.target.result})`;
-            localStorage.setItem('heroBackground', ev.target.result);
-            showToast('🎨 Background updated!');
+            localStorage.setItem('heroBackground', ev.target.result);            showToast('Background updated');
         };
         reader.readAsDataURL(file);
     }
@@ -172,13 +157,12 @@ document.getElementById('logo-upload')?.addEventListener('change', function(e) {
         const reader = new FileReader();
         reader.onload = ev => {
             document.getElementById('site-logo').src = ev.target.result;
-            showToast('🖼️ Logo updated!');
+            showToast('Logo updated');
         };
         reader.readAsDataURL(file);
     }
 });
 
-// ===== SEARCH =====
 document.getElementById('search-btn')?.addEventListener('click', performSearch);
 document.getElementById('search-input')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') performSearch();
@@ -194,74 +178,23 @@ function performSearch() {
         p.name.toLowerCase().includes(query) || 
         p.category.toLowerCase().includes(query)
     );
-    renderProducts(filtered);    showToast(`🔍 Found ${filtered.length} result(s)`);
+    renderProducts(filtered);
+    showToast(`Found ${filtered.length} result(s)`);
 }
 
-// ===== LOGIN SYSTEM (Email Only - Social Login Removed) =====
-function showLoginModal() {
-    document.getElementById('login-modal').style.display = 'flex';
-}
-
-function closeLoginModal() {
-    document.getElementById('login-modal').style.display = 'none';
-}
-
-document.getElementById('close-modal')?.addEventListener('click', closeLoginModal);
-
-// Close modal when clicking outside
-document.getElementById('login-modal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'login-modal') closeLoginModal();
-});
-
-// Email Login Form Handler
-document.getElementById('email-login-form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    
-    // Simple validation (in real app, connect to backend)
-    if (email && password.length >= 6) {
-        currentUser = { email: email, name: email.split('@')[0] };
-        localStorage.setItem('desiUser', JSON.stringify(currentUser));
-        updateUserProfile();
-        showToast(`✅ Welcome, ${currentUser.name}!`);
-        closeLoginModal();
-        this.reset();
-    } else {
-        showToast('⚠️ Please enter valid credentials (password min 6 chars)');
-    }
-});
-
-function updateUserProfile() {
-    const profile = document.getElementById('user-profile');
-    if (currentUser) {
-        profile.innerHTML = `<i class="fas fa-user-check"></i> ${currentUser.name}`;
-        profile.onclick = null; // Disable login modal click
-    } else {
-        profile.innerHTML = `<i class="fas fa-user-circle"></i>`;
-        profile.onclick = showLoginModal;
-    }
-}
-
-window.skipLogin = function() {    showToast('👋 Browsing as Guest');
-    closeLoginModal();
-};
-
-// ===== TESTIMONIALS =====
 function renderTestimonials() {
     const container = document.getElementById('testimonials-grid');
     if (!container) return;
     
     const testimonials = [
-        { name: "Priya Sharma", text: "Best ethnic wear! My wedding lehenga was absolutely perfect. 💕", img: "https://picsum.photos/id/64/100/100" },
+        { name: "Priya Sharma", text: "Best ethnic wear! My wedding lehenga was absolutely perfect.", img: "https://picsum.photos/id/64/100/100" },
         { name: "Rahul Verma", text: "Premium quality sherwani. Guests kept asking where I got it!", img: "https://picsum.photos/id/91/100/100" },
-        { name: "Anjali Patel", text: "Fast delivery & beautiful packaging. Will order again! ✨", img: "https://picsum.photos/id/1027/100/100" }
+        { name: "Anjali Patel", text: "Fast delivery and beautiful packaging. Will order again!", img: "https://picsum.photos/id/1027/100/100" }
     ];
     
     testimonials.forEach(t => {
         const card = document.createElement('div');
-        card.className = 'testimonial-card';
-        card.innerHTML = `
+        card.className = 'testimonial-card';        card.innerHTML = `
             <img src="${t.img}" alt="${t.name}" onerror="this.src='https://via.placeholder.com/100/ffd700/000?text=${t.name[0]}'">
             <p>"${t.text}"</p>
             <h4>- ${t.name}</h4>
@@ -270,17 +203,9 @@ function renderTestimonials() {
     });
 }
 
-// ===== TOAST NOTIFICATIONS =====
 function showToast(message) {
     const toast = document.createElement('div');
-    toast.style.cssText = `
-        position: fixed; bottom: 30px; right: 30px;
-        background: #1f1f1f; border: 3px solid var(--gold);
-        color: var(--gold); padding: 15px 25px;
-        border-radius: 12px; font-weight: 600;
-        z-index: 10000; animation: slideIn 0.3s ease;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    `;
+    toast.className = 'toast';
     toast.textContent = message;
     document.body.appendChild(toast);
     
@@ -290,42 +215,19 @@ function showToast(message) {
     }, 3000);
 }
 
-// Add toast animations to document
-if (!document.getElementById('toast-styles')) {
-    const style = document.createElement('style');    style.id = 'toast-styles';
-    style.textContent = `
-        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
-    `;
-    document.head.appendChild(style);
+function showVIPModal() {
+    showToast('VIP Membership: Early access + 20% OFF + Free Shipping (Coming Soon)');
 }
 
-// ===== VIP MODAL =====
-window.showVIPModal = function() {
-    showToast('👑 VIP Membership: Early access + 20% OFF + Free Shipping! (Coming Soon)');
-};
-
-// ===== INITIALIZE =====
 window.onload = function() {
     loadFromStorage();
     renderCategories();
     populateCategorySelect();
     renderProducts(products);
     renderTestimonials();
-    updateUserProfile();
-    
-    // Show login modal after delay for first-time visitors
-    if (!currentUser && !sessionStorage.getItem('modalShown')) {
-        setTimeout(() => {
-            document.getElementById('login-modal').style.display = 'flex';
-            sessionStorage.setItem('modalShown', 'true');
-        }, 1500);
-    }
 };
 
-// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLoginModal();
     if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         document.getElementById('search-input')?.focus();
